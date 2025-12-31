@@ -73,7 +73,7 @@
                         </div>
                     </div>
 
-                    <p class="text-gray-400 dark:text-gray-400 mb-6 mt-0 border-t border-blue-300">
+                    <p class="font-bold text-xs text-gray-400 dark:text-gray-400 mb-6 mt-0 border-t border-blue-400">
                         Data Karyawan dan edit status karyawan.</span>
                      </p>
                      <!--Info total karyawan-->
@@ -181,17 +181,51 @@
                                     </span>
                                 </td>
                             
-                                <td class="px-3 py-2 text-sm">
+                                <td class="px-3 py-2 text-sm" x-data="{ open:false, imgSrc:'' }">
+                                
+                                    @php
+                                        $labels = [
+                                            'berkas1' => 'KTP',
+                                            'berkas2' => 'SKCK',
+                                            'berkas3' => 'BerkasLain',
+                                        ];
+                                    @endphp
+                                
                                     @foreach (['berkas1','berkas2','berkas3'] as $file)
                                         @if ($row->$file)
-                                            <a href="{{ asset('storage/'.$row->$file) }}"
-                                               class="text-blue-600 dark:text-blue-300 underline mr-1"
-                                               target="_blank">
-                                                {{ strtoupper($file) }}
-                                            </a>
+                                            <button
+                                                @click="open=true; imgSrc='{{ asset('storage/'.$row->$file) }}'"
+                                                class="text-blue-600 dark:text-blue-300 underline mr-2"
+                                                type="button">
+                                                {{ $labels[$file] }}
+                                            </button>
                                         @endif
                                     @endforeach
+                                
+                                    <!-- Modal -->
+                                    <div
+                                        x-show="open"
+                                        x-transition
+                                        class="fixed inset-0 z-50 flex items-center justify-center bg-black/70"
+                                        @click.away="open=false"
+                                        @keydown.escape.window="open=false"
+                                    >
+                                        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-4 max-w-3xl w-full">
+                                            <img :src="imgSrc" class="mx-auto rounded-lg max-h-[80vh] object-contain">
+                                
+                                            <div class="text-right mt-3">
+                                                <button
+                                                    class="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800"
+                                                    @click="open=false">
+                                                    Tutup
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                
                                 </td>
+
+
                             
                                 <td class="px-4 py-2 text-sm">
                                     <div class="flex items-center space-x-3">
