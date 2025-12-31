@@ -22,7 +22,7 @@
                                 <option value="">Pilih Karyawan</option>
                                 @foreach($karyawans as $karyawan)
                                     <option value="{{ $karyawan->name_user }}" {{ old('name_karyawan') == $karyawan->name_user ? 'selected' : '' }}>
-                                        {{ $karyawan->name_user }} - {{ $karyawan->jabatan }}
+                                        {{ $karyawan->nama_lengkap }} - {{ $karyawan->jabatan }}
                                     </option>
                                 @endforeach
                             </select>
@@ -88,4 +88,5 @@
             </div>
         </div>
     </div>
+
 </x-app-layout>
