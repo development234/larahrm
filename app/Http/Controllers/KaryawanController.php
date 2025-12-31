@@ -197,9 +197,9 @@ class KaryawanController extends Controller
         try {
             $karyawan = Karyawan::findOrFail($id);
     
-            /* VALIDASI */
             $validated = $request->validate([
                 'name_user'      => 'required|string|max:255',
+                'password'       => 'nullable|min:6',
                 'nik'            => [
                     'required',
                     Rule::unique('tb_karyawan','nik')->ignore($karyawan->id),
@@ -217,7 +217,6 @@ class KaryawanController extends Controller
                 'rekening'       => 'nullable|string|max:100',
                 'Status'         => 'required|in:Aktif,Non-Aktif',
     
-                // upload opsional
                 'berkas1'        => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
                 'berkas2'        => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
                 'berkas3'        => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
@@ -225,30 +224,30 @@ class KaryawanController extends Controller
     
             DB::beginTransaction();
     
-            /* HANDLE FILE UPLOAD */
             foreach (['berkas1','berkas2','berkas3'] as $file) {
-            
-                // jika ada file baru
+    
                 if ($request->hasFile($file)) {
-            
-                    // hapus file lama jika ada
+    
                     if ($karyawan->$file && Storage::disk('public')->exists($karyawan->$file)) {
                         Storage::disk('public')->delete($karyawan->$file);
                     }
-            
-                    // simpan file baru
+    
                     $validated[$file] = $request->file($file)
                         ->store('karyawan/berkas', 'public');
-            
+    
                 } else {
-                    // **tidak upload apa-apa → pakai nilai lama**
                     $validated[$file] = $karyawan->$file;
                 }
             }
-
     
-            /* SIMPAN PERUBAHAN */
-            $karyawan->update($validated);
+            // ⬇️ simpan data + password opsional
+            $karyawan->fill($validated);
+    
+            if ($request->filled('password')) {
+                $karyawan->password = bcrypt($request->password);
+            }
+    
+            $karyawan->save();
     
             DB::commit();
     
